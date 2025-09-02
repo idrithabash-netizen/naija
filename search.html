@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Search Movies - NollyArena</title>
+    <meta
+      name="description"
+      content="Search Nollywood and international movies on NollyArena."
+    />
+    <meta name="robots" content="index, follow" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        background: #111;
+        color: #fff;
+      }
+      .movie-card {
+        background: #1c1c1c;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+        min-height: 350px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .movie-card img {
+        width: 100%;
+        height: 350px;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 0.5s ease-in;
+      }
+      .movie-card img.loaded {
+        opacity: 1;
+      }
+      .movie-title {
+        font-size: 1rem;
+        font-weight: bold;
+        margin: 10px;
+      }
+      .spinner-border {
+        width: 2rem;
+        height: 2rem;
+        position: absolute;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-dark bg-dark px-3">
+      <a href="index.html" class="navbar-brand">🎬 NollyArena</a>
+      <form class="d-flex" action="search.html" method="get">
+        <input
+          class="form-control me-2"
+          type="search"
+          placeholder="Search movies..."
+          name="q"
+        />
+        <button class="btn btn-outline-light">Search</button>
+      </form>
+    </nav>
+
+    <div class="container py-4">
+      <h2 class="mb-4">Search Results</h2>
+      <div id="results" class="row g-3"></div>
+    </div>
+
+    <script>
+      const apiKey = "d9622f2638e654facf923309888ef7e2";
+
+      async function fetchPoster(title) {
+        try {
+          const res = await fetch(
+            `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(
+              title
+            )}`
+          );
+          const data = await res.json();
+          if (data.results && data.results[0] && data.results[0].poster_path) {
+            return (
+              "https://image.tmdb.org/t/p/w500" + data.results[0].poster_path
+            );
+          }
+        } catch (e) {
+          console.error("Poster fetch error:", e);
+        }
+        return null;
+      }
+
+      async function searchMovies() {
+        const params = new URLSearchParams(window.location.search);
+        const query = params.get("q")?.toLowerCase() || "";
+        const res = await fetch("movies.json");
+        const movies = await res.json();
+
+        const filtered = movies.filter((m) =>
+          m.title.toLowerCase().includes(query)
+        );
+        const container = document.getElementById("results");
+
+        if (filtered.length === 0) {
+          container.innerHTML =
+            '<p class="text-center text-muted">No movies found.</p>';
+          return;
+        }
+
+        for (let m of filtered) {
+          const col = document.createElement("div");
+          col.className = "col-6 col-md-3";
+
+          // Initial placeholder with spinner
+          col.innerHTML = `
+            <div class="movie-card">
+              <div class="spinner-border text-light" role="status"></div>
+            </div>
+          `;
+          container.appendChild(col);
+
+          let poster = await fetchPoster(m.title);
+          if (!poster)
+            poster = "https://via.placeholder.com/500x750?text=No+Poster";
+
+          // Replace spinner with poster
+          col.innerHTML = `
+            <div class="movie-card">
+              <a href="movie.html?id=${m.id}" class="text-decoration-none text-light">
+                <img src="${poster}" alt="${m.title}" loading="lazy">
+                <div class="movie-title">${m.title}</div>
+              </a>
+            </div>
+          `;
+
+          // Fade-in effect after image loads
+          const img = col.querySelector("img");
+          img.onload = () => {
+            img.classList.add("loaded");
+          };
+        }
+      }
+
+      searchMovies();
+    </script>
+  </body>
+</html>

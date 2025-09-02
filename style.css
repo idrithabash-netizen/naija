@@ -1,0 +1,33 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+h1 { margin: 20px; }
+#search { padding: 10px; width: 80%; max-width: 400px; }
+#movies { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+.movie-card {
+  background: white;
+  border-radius: 8px;
+  margin: 10px;
+  padding: 10px;
+  width: 180px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.movie-card img { width: 100%; border-radius: 5px; }
+.download-btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px;
+  background: green;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+.ad-banner, .ad-footer {
+  margin: 20px;
+  padding: 10px;
+  background: #ddd;
+}
